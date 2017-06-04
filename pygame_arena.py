@@ -1,13 +1,15 @@
 import pygame, pygame.locals
-from PIL import Image
+from PIL import Image, ImageOps
 
 BLACK = (0, 0, 0)
+DGREY = (86, 86, 86)
+LGREY = (172, 172, 172)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
 
-# in cm, using standard Cartesian Coordinates
+# in cm, using standard PC Screen Coordinates
 botY = 60
 botX = 60
 size = [800, 600]
@@ -39,20 +41,15 @@ def main():
             elif event.type == pygame.MOUSEMOTION and mouse_pressed:
                 pygame.draw.circle(screen, BLACK, event.pos, 2)
 
-        # to update screen. This must happen after all commands
-        pygame.display.flip()
+        pygame.display.flip()  # to update screen. This must happen after all commands
 
-    # saving two images, with and without bot
-    pygame.image.save(screen, 'img.jpg')
     pygame.draw.rect(screen, WHITE, [(size[0] - botX) / 2, (size[1] - botY) / 2, botX, botY])
-    pygame.display.update()
-    pygame.image.save(screen, 'map.jpg')  # we'll use this for calculations
+    pygame.image.save(screen, 'map.jpg')
     im = Image.open('map.jpg')
-    im = im.convert('1')
+    im = im.convert('L')
+    im = ImageOps.invert(im)
     im.save('map.jpg')  # saving it as  pure BW
-
-    # being IDLE friendly
-    pygame.quit()
+    pygame.quit()     # being IDLE friendly
 
 
 if __name__ == '__main__':
