@@ -6,7 +6,6 @@ world_size = 100.0
 
 
 def Gaussian(mu, sigma, x):
-
     # calculates the probability of x for 1-dim Gaussian with mean mu and var. sigma
     return exp(- ((mu - x) ** 2) / (sigma ** 2) / 2.0) / sqrt(2.0 * pi * (sigma ** 2))
 
@@ -22,11 +21,11 @@ class robot:
 
     def set(self, new_x, new_y, new_orientation):
         if new_x < 0 or new_x >= world_size:
-            raise(ValueError, "X coordinate out of bound")
+            raise (ValueError, "X coordinate out of bound")
         if new_y < 0 or new_y >= world_size:
-            raise(ValueError, 'Y coordinate out of bound')
+            raise (ValueError, 'Y coordinate out of bound')
         if new_orientation < 0 or new_orientation >= 2 * pi:
-            raise(ValueError, 'Orientation must be in [0..2pi]')
+            raise (ValueError, 'Orientation must be in [0..2pi]')
         self.x = float(new_x)
         self.y = float(new_y)
         self.orientation = float(new_orientation)
@@ -48,7 +47,7 @@ class robot:
 
     def move(self, turn, forward):
         if forward < 0:
-            raise(ValueError, 'Robot cant move backwards')
+            raise (ValueError, 'Robot cant move backwards')
 
             # turn, and add randomness to the turning command
         orientation = self.orientation + float(turn) + random.gauss(0.0, self.turn_noise)
@@ -91,13 +90,36 @@ def eval(r, p):
     return sum / float(len(p))
 
 
-my_robot = robot()
-my_robot.set_noise(5., .1, 5.)
-my_robot.set(30, 50, pi / 2)
-# print my_robot
-my_robot = my_robot.move(-pi / 2, 15)
-# print my_robot
-print my_robot.sense()
-my_robot = my_robot.move(-pi / 2, 10)
-# print my_robot
-print my_robot.sense()
+def main():
+    n = 1000
+    my_robot = robot()
+    z = my_robot.sense()
+
+    p = []
+    for i in range(n):
+        x = robot()
+        x.set_noise(0.05, 0.05, 5.0)
+        x = x.move(0.1, 5)
+        p.append(x)
+
+    w = []  # weights
+    for i in range(n):
+        w.append(p[i].measurement_prob(z))
+
+    s = sum(w)  # normalising weights
+    for i in range(n):
+        w[i] /= s
+
+    # Resampling via multiply random numbers with particle probability, select max of it
+    p_resampled = []
+    for i in range(n):
+        copy = w[:]
+        for j in range(n):
+            copy[j] *= random.uniform(0, 1)
+        p_resampled.append(p[copy.index(max(copy))])
+
+    # TODO  Resampling Wheel with O(n) instead O(n*log(n)) here
+
+
+if __name__ == '__main__':
+    main()
