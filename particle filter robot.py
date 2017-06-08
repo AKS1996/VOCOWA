@@ -125,6 +125,7 @@ for t in range(T):
     for i in range(N):
         w.append(p[i].measurement_prob(Z))
 
+    # Resampling using Random Wheel
     p3 = []
     index = int(random.random() * N)
     beta = 0.0
