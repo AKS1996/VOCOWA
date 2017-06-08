@@ -71,62 +71,36 @@ class robot:
         new_robot.set(x_new, y_new, theta_new)
         return new_robot
 
-## --------
-## TEST CASE:
-##
-## 1) The following code should print:
-##       Robot:     [x=0.0 y=0.0 orient=0.0]
-##       Robot:     [x=10.0 y=0.0 orient=0.0]
-##       Robot:     [x=19.861 y=1.4333 orient=0.2886]
-##       Robot:     [x=39.034 y=7.1270 orient=0.2886]
-##
-##
+    def sense(self):
+        distances = []
+        [x, y, theta] = [self.x, self.y, self.orientation]
+        for i in range(len(landmarks)):
+            distances.append((atan2(landmarks[i][0] - y, landmarks[i][1] - x) - theta)%(2*pi))
+
+        return distances
+
+# This should print the list [6.004885648174475, 3.7295952571373605, 1.9295669970654687, 0.8519663271732721]
 # length = 20.
-# bearing_noise = 0.0
+# bearing_noise  = 0.0
 # steering_noise = 0.0
 # distance_noise = 0.0
 #
 # myrobot = robot(length)
-# myrobot.set(0.0, 0.0, 0.0)
+# myrobot.set(30.0, 20.0, 0.0)
 # myrobot.set_noise(bearing_noise, steering_noise, distance_noise)
 #
-# motions = [[0.0, 10.0], [pi / 6.0, 10], [0.0, 20.0]]
-#
-# T = len(motions)
-#
-# print 'Robot:    ', myrobot
-# for t in range(T):
-#    myrobot = myrobot.move(motions[t])
-#    print 'Robot:    ', myrobot
+# print 'Robot:        ', myrobot
+# print 'Measurements: ', myrobot.sense()
 
-
-# 2) The following code should print:
-#      Robot:     [x=0.0 y=0.0 orient=0.0]
-#      Robot:     [x=9.9828 y=0.5063 orient=0.1013]
-#      Robot:     [x=19.863 y=2.0201 orient=0.2027]
-#      Robot:     [x=29.539 y=4.5259 orient=0.3040]
-#      Robot:     [x=38.913 y=7.9979 orient=0.4054]
-#      Robot:     [x=47.887 y=12.400 orient=0.5067]
-#      Robot:     [x=56.369 y=17.688 orient=0.6081]
-#      Robot:     [x=64.273 y=23.807 orient=0.7094]
-#      Robot:     [x=71.517 y=30.695 orient=0.8108]
-#      Robot:     [x=78.027 y=38.280 orient=0.9121]
-#      Robot:     [x=83.736 y=46.485 orient=1.0135]
-#
+# Code should print the list [5.376567117456516, 3.101276726419402, 1.3012484663475101, 0.22364779645531352]
 # length = 20.
-# bearing_noise = 0.0
+# bearing_noise  = 0.0
 # steering_noise = 0.0
 # distance_noise = 0.0
 #
-# my_robot = robot(length)
-# my_robot.set(0.0, 0.0, 0.0)
-# my_robot.set_noise(bearing_noise, steering_noise, distance_noise)
+# myrobot = robot(length)
+# myrobot.set(30.0, 20.0, pi / 5.0)
+# myrobot.set_noise(bearing_noise, steering_noise, distance_noise)
 #
-# motions = [[0.2, 10.] for row in range(10)]
-#
-# T = len(motions)
-#
-# print 'Robot:    ', my_robot
-# for t in range(T):
-#     my_robot = my_robot.move(motions[t])
-#     print 'Robot:    ', my_robot
+# print 'Robot:        ', myrobot
+# print 'Measurements: ', myrobot.sense()
