@@ -75,7 +75,7 @@ class robot:
         distances = []
         [x, y, theta] = [self.x, self.y, self.orientation]
         for i in range(len(landmarks)):
-            distances.append((atan2(landmarks[i][0] - y, landmarks[i][1] - x) - theta)%(2*pi))
+            distances.append((atan2(landmarks[i][0] - y, landmarks[i][1] - x) - theta + random.gauss(0.0, self.bearing_noise))%(2*pi))
 
         return distances
 
