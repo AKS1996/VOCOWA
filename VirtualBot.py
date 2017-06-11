@@ -6,6 +6,7 @@
 # TODO Increase cell size of resultant map
 # TODO Set botL = botW = 60 and edit move_bot() to move to centroid of unvisited cells
 # TODO resolve addition of x,y to coordinates at specific position
+# TODO Add the grey area: 1/3 of bot length
 
 from numpy import array, add, subtract
 from os import listdir
