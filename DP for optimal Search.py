@@ -17,22 +17,43 @@ def compute_value(grid, goal, cost):
                 values[i][j] = 99
 
     while open:
-        min_value = -1
-        changed = False
-        for d in delta:
-            x = open[0][0] + d[0]
-            y = open[0][1] + d[1]
-            if 0 <= x < len(grid) and 0 <= y < len(grid[0]):
-                if values[x][y] == -1:
-                    open.append([x, y])
-                elif values[x][y] < min_value:
-                    min_value = values[x][y]
-                    changed = True
-        if changed:
-            values[open[0][0]][open[0][1]] = min_value + cost
-        else:
-            values[open[0][0]][open[0][1]] = 0
+        [curr_x, curr_y] = [open[0][0], open[0][1]]
         open.remove(open[0])
+
+        # creating set of neighbours
+        neighbours = []
+        for d in delta:
+            x = curr_x + d[0]
+            y = curr_y + d[1]
+            if 0 <= x < len(grid) and 0 <= y < len(grid[0]):
+                neighbours.append([values[x][y], x, y])
+
+        # separating them into valid(with some positive value) and new
+        new = []
+        valid = []
+        for n in neighbours:
+            if n[0] == -1:
+                new.append([n[1], n[2]])
+            elif n[0] != 99:
+                valid.append(n)
+        del neighbours
+
+        # setting value of the current cell
+        if valid:
+            valid.sort()
+            values[curr_x][curr_y] = valid[0][0] + 1
+        else:
+            values[curr_x][curr_y] = 0
+
+        # appending new to list of open cells
+        for n in new:
+            open.append(n)
+
+    # What if 'values' has unreachable cells?
+    for i in range(len(values)):
+        for j in range(len(values[0])):
+            if values[i][j] == -1:
+                values[i][j] = 99
 
     return values
 
@@ -48,6 +69,7 @@ def main():
     # print compute_value(grid, goal, cost)
     for i in compute_value(grid, goal, cost):
         print i
+
 
 if __name__ == '__main__':
     main()
