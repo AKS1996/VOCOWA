@@ -1,13 +1,16 @@
 import pygame, pygame.locals
 from PIL import Image, ImageOps
 
-BLACK = (0, 0, 0)
-DGREY = (86, 86, 86)
-LGREY = (172, 172, 172)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-WHITE = (255, 255, 255)
-BLUE = (0, 0, 255)
+colors = {'BLACK': (0, 0, 0),
+          'DGREY': (86, 86, 86),
+          'LGREY': (172, 172, 172),
+          'LRED': (255, 0, 0),
+          'RED': (120, 0, 0),
+          'GREEN': (0, 255, 0),
+          'WHITE': (255, 255, 255),
+          'LBLUE': (0, 0, 255),
+          'BLUE': (0, 0, 60)
+          }
 
 # in cm, using standard PC Screen Coordinates
 botY = 60
@@ -20,8 +23,8 @@ def main():
     screen = pygame.display.set_mode(size)
     clock = pygame.time.Clock()
 
-    screen.fill(WHITE)
-    pygame.draw.rect(screen, BLUE, [(size[0] - botX) / 2, (size[1] - botY) / 2, botX, botY])
+    screen.fill(colors['WHITE'])
+    pygame.draw.rect(screen, colors['BLACK'], [(size[0] - botX) / 2, (size[1] - botY) / 2, botX, botY])
     pygame.display.update()
 
     done = False
@@ -39,17 +42,17 @@ def main():
             elif event.type == pygame.MOUSEBUTTONUP:
                 mouse_pressed = False
             elif event.type == pygame.MOUSEMOTION and mouse_pressed:
-                pygame.draw.circle(screen, BLACK, event.pos, 2)
+                pygame.draw.circle(screen, colors['BLACK'], event.pos, 2)
 
         pygame.display.flip()  # to update screen. This must happen after all commands
 
-    pygame.draw.rect(screen, WHITE, [(size[0] - botX) / 2, (size[1] - botY) / 2, botX, botY])
+    pygame.draw.rect(screen, colors['BLACK'], [(size[0] - botX) / 2, (size[1] - botY) / 2, botX, botY])
     pygame.image.save(screen, 'map.jpg')
     im = Image.open('map.jpg')
     im = im.convert('L')
     im = ImageOps.invert(im)
     im.save('map.jpg')  # saving it as  pure BW
-    pygame.quit()     # being IDLE friendly
+    pygame.quit()  # being IDLE friendly
 
 
 if __name__ == '__main__':
