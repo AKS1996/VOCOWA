@@ -64,16 +64,17 @@ def move_bot():
             delta += 1
         else:
             direction *= 1j
+            break
 
     if 0 > x:
         x = 1
-    elif x >= actual_map.shape[0]:
-        x = actual_map.shape[0] - 1
+    elif x >= actual_map.shape[1]:
+        x = actual_map.shape[1] - 1
 
     if 0 > y:
         y = 1
-    elif y == actual_map.shape[1]:
-        y = actual_map.shape[1] - 1
+    elif y == actual_map.shape[0]:
+        y = actual_map.shape[0] - 1
 
     bot.append((x, y))
 
@@ -111,7 +112,7 @@ def update_image():
 
     pygame.init()
     screen = pygame.display.set_mode((2 * specs[4], 2 * specs[4]))
-    screen.fill(colors['WHITE'])
+    screen.fill(colors['BLACK'])
 
     for i in range(0, len(all_coordinates)):
         # TODO Image Merge Issue
@@ -157,7 +158,7 @@ def main():
         get_readings()
         update_image()
         move_bot()
-        start = raw_input("\nPress 'y' to continue scanning: ").startswith('y')
+        start = raw_input("Press 'y' to continue scanning: ").startswith('y')
 
     finish()
 

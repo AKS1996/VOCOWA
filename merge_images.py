@@ -1,6 +1,6 @@
 from operator import add
 from numpy import subtract
-from PIL import Image
+from PIL import Image, ImageMath
 
 
 # TODO Negative Shift Issue
@@ -46,4 +46,5 @@ def merge_BW(name_img1, name_img2, position_wrt_img1=(0, 0)):
     _img2 = Image.new('L', size=(w, h), color=0)
     _img2.paste(img2, position_wrt_img1)
 
-    return Image.blend(_img1, _img2, alpha=0.5)
+    i = ImageMath.eval("a|b", a=_img1, b=_img2)
+    i.convert('L').save('result.jpg')
