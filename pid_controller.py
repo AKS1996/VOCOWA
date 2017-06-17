@@ -1,10 +1,5 @@
-# steering = -tau * crosstrack_error
-#
-# Note that tau is called "param" in the function
-# below.
 import random
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 class Robot(object):
@@ -90,26 +85,74 @@ class Robot(object):
         return '[x=%.5f y=%.5f orient=%.5f]' % (self.x, self.y, self.orientation)
 
 
+############## ADD / MODIFY CODE BELOW ####################
+# ------------------------------------------------------------------------
+#
+# run - does a single control run
+
+# previous P controller
+def run_p(robot, tau, n=100, speed=1.0):
+    x_trajectory = []
+    y_trajectory = []
+    for i in range(n):
+        cte = robot.y
+        steer = -tau * cte
+        robot.move(steer, speed)
+        x_trajectory.append(robot.x)
+        y_trajectory.append(robot.y)
+    return x_trajectory, y_trajectory
+
+
 robot = Robot()
 robot.set(0, 1, 0)
 
 
-def run(robot, tau, n=100, speed=1.0):
+# # new PD controller
+# def run(robot, tau_p, tau_d, n=100, speed=1.0):
+#     x_trajectory = []
+#     y_trajectory = []
+#
+#     cte_old = 0
+#     cte = robot.y
+#
+#     for i in range(n):
+#         steer = -tau_p * cte - tau_d * (cte - cte_old)
+#         robot.move(steer, speed)
+#
+#         x_trajectory.append(robot.x)
+#         y_trajectory.append(robot.y)
+#
+#         cte_old = cte
+#         cte = robot.y
+#
+#         print robot, steer
+#
+#     return x_trajectory, y_trajectory
+
+
+def run(robot, tau_p, tau_d, tau_i, n=100, speed=1.0):
     x_trajectory = []
     y_trajectory = []
 
+    cte_old = 0
+    cte = robot.y
+    cte_sum = cte
+
     for i in range(n):
-        print(robot,-robot.y * tau)
-        robot.move(-robot.y * tau, speed)
+        steer = -tau_p * cte - tau_d * (cte - cte_old) - tau_i*cte_sum
+        robot.move(steer, speed)
+
         x_trajectory.append(robot.x)
         y_trajectory.append(robot.y)
+
+        cte_old = cte
+        cte = robot.y
+        cte_sum += cte
+
+        print robot, steer
 
     return x_trajectory, y_trajectory
 
 
-x_trajectory, y_trajectory = run(robot, 0.3)
+x_trajectory, y_trajectory = run(robot, 0.2, 3.0, 0.004, 100, 1)
 n = len(x_trajectory)
-
-plt.plot(x_trajectory, y_trajectory, 'g', label='proportional controller')
-plt.plot(x_trajectory, np.zeros(n), 'r', label='reference')
-
