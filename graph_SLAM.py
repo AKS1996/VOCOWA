@@ -1,31 +1,6 @@
-# -----------
-# User Instructions
-#
-# Modify the previous code to adjust for a highly
-# confident last measurement. Do this by adding a
-# factor of 5 into your Omega and Xi matrices
-# as described in the video.
-
-
-
 from math import *
 import random
 
-
-# ===============================================================
-#
-# SLAM in a rectolinear world (we avoid non-linearities)
-#
-#
-# ===============================================================
-
-
-# ------------------------------------------------
-#
-# this is the matrix class
-# we use it because it makes it easier to collect constraints in GraphSLAM
-# and to calculate solutions (albeit inefficiently)
-#
 
 class matrix:
     # implements basic operations of a matrix class
@@ -42,11 +17,6 @@ class matrix:
         if value == [[]]:
             self.dimx = 0
 
-    # ------------
-    #
-    # makes matrix of a certain size and sets each element to zero
-    #
-
     def zero(self, dimx, dimy=0):
         if dimy == 0:
             dimy = dimx
@@ -57,12 +27,6 @@ class matrix:
             self.dimx = dimx
             self.dimy = dimy
             self.value = [[0.0 for row in range(dimy)] for col in range(dimx)]
-
-    # ------------
-    #
-    # makes matrix of a certain (square) size and turns matrix into identity matrix
-    #
-
 
     def identity(self, dim):
         # check if valid dimension
@@ -75,22 +39,10 @@ class matrix:
             for i in range(dim):
                 self.value[i][i] = 1.0
 
-    # ------------
-    #
-    # prints out values of matrix
-    #
-
-
     def show(self, txt=''):
         for i in range(len(self.value)):
             print txt + '[' + ', '.join('%.3f' % x for x in self.value[i]) + ']'
         print ' '
-
-    # ------------
-    #
-    # defines elmement-wise matrix addition. Both matrices must be of equal dimensions
-    #
-
 
     def __add__(self, other):
         # check if correct dimensions
@@ -105,11 +57,6 @@ class matrix:
                     res.value[i][j] = self.value[i][j] + other.value[i][j]
             return res
 
-    # ------------
-    #
-    # defines elmement-wise matrix subtraction. Both matrices must be of equal dimensions
-    #
-
     def __sub__(self, other):
         # check if correct dimensions
         if self.dimx != other.dimx or self.dimx != other.dimx:
@@ -122,12 +69,6 @@ class matrix:
                 for j in range(self.dimy):
                     res.value[i][j] = self.value[i][j] - other.value[i][j]
             return res
-
-    # ------------
-    #
-    # defines multiplication. Both matrices must be of fitting dimensions
-    #
-
 
     def __mul__(self, other):
         # check if correct dimensions
@@ -142,12 +83,6 @@ class matrix:
                     for k in range(self.dimy):
                         res.value[i][j] += self.value[i][k] * other.value[k][j]
         return res
-
-    # ------------
-    #
-    # returns a matrix transpose
-    #
-
 
     def transpose(self):
         # compute transpose
@@ -228,13 +163,7 @@ class matrix:
             for j in range(len(list2)):
                 res.value[list1[i]][list2[j]] = self.value[i][j]
         return res
-
-    # ------------
-    #
-    # Computes the upper triangular Cholesky factorization of
-    # a positive definite matrix.
-    # This code is based on http://adorio-research.org/wordpress/?p=4560
-
+    
     def Cholesky(self, ztol=1.0e-5):
 
         res = matrix()
@@ -255,14 +184,7 @@ class matrix:
                     S = 0.0
                 res.value[i][j] = (self.value[i][j] - S) / res.value[i][i]
         return res
-
-        # ------------
-
-    #
-    # Computes inverse of matrix given its Cholesky upper Triangular
-    # decomposition of matrix.
-    # This code is based on http://adorio-research.org/wordpress/?p=4560
-
+    
     def CholeskyInverse(self):
         # Computes inverse of matrix given its Cholesky upper Triangular
         # decomposition of matrix.
@@ -282,31 +204,13 @@ class matrix:
                           range(i + 1, self.dimx)]) / self.value[i][i]
         return res
 
-    # ------------
-    #
-    # comutes and returns the inverse of a square matrix
-    #
-
-
     def inverse(self):
         aux = self.Cholesky()
         res = aux.CholeskyInverse()
         return res
-
-    # ------------
-    #
-    # prints matrix (needs work!)
-    #
-
-
+    
     def __repr__(self):
         return repr(self.value)
-
-
-# ######################################################################
-# ######################################################################
-# ######################################################################
-
 
 # Including the 5 times multiplier, your returned mu should now be:
 #
@@ -316,64 +220,61 @@ class matrix:
 #  [6.821]]
 
 
-
-############## MODIFY CODE BELOW ##################
-
 def doit(initial_pos, move1, move2, Z0, Z1, Z2):
-    Omega = matrix([[1.0, 0.0, 0.0],
+    omega = matrix([[1.0, 0.0, 0.0],
                     [0.0, 0.0, 0.0],
                     [0.0, 0.0, 0.0]])
-    Xi = matrix([[initial_pos],
+    xi = matrix([[initial_pos],
                  [0.0],
                  [0.0]])
 
-    Omega += matrix([[1.0, -1.0, 0.0],
+    omega += matrix([[1.0, -1.0, 0.0],
                      [-1.0, 1.0, 0.0],
                      [0.0, 0.0, 0.0]])
-    Xi += matrix([[-move1],
+    xi += matrix([[-move1],
                   [move1],
                   [0.0]])
 
-    Omega += matrix([[0.0, 0.0, 0.0],
+    omega += matrix([[0.0, 0.0, 0.0],
                      [0.0, 1.0, -1.0],
                      [0.0, -1.0, 1.0]])
-    Xi += matrix([[0.0],
+    xi += matrix([[0.0],
                   [-move2],
                   [move2]])
 
-    Omega = Omega.expand(4, 4, [0, 1, 2], [0, 1, 2])
-    Xi = Xi.expand(4, 1, [0, 1, 2], [0])
+    omega = omega.expand(4, 4, [0, 1, 2], [0, 1, 2])
+    xi = xi.expand(4, 1, [0, 1, 2], [0])
 
-    Omega += matrix([[1.0, 0.0, 0.0, -1.0],
+    omega += matrix([[1.0, 0.0, 0.0, -1.0],
                      [0.0, 0.0, 0.0, 0.0],
                      [0.0, 0.0, 0.0, 0.0],
                      [-1.0, 0.0, 0.0, 1.0]])
-    Xi += matrix([[-Z0],
+    xi += matrix([[-Z0],
                   [0.0],
                   [0.0],
                   [Z0]])
 
-    Omega += matrix([[0.0, 0.0, 0.0, 0.0],
+    omega += matrix([[0.0, 0.0, 0.0, 0.0],
                      [0.0, 1.0, 0.0, -1.0],
                      [0.0, 0.0, 0.0, 0.0],
                      [0.0, -1.0, 0.0, 1.0]])
-    Xi += matrix([[0.0],
+    xi += matrix([[0.0],
                   [-Z1],
                   [0.0],
                   [Z1]])
 
-    Omega += matrix([[0.0, 0.0, 0.0, 0.0],
+    omega += matrix([[0.0, 0.0, 0.0, 0.0],
                      [0.0, 0.0, 0.0, 0.0],
                      [0.0, 0.0, 1.0, -1.0],
                      [0.0, 0.0, -1.0, 1.0]])
-    Xi += matrix([[0.0],
+    xi += matrix([[0.0],
                   [0.0],
                   [-Z2],
                   [Z2]])
 
-    Omega.show('Omega: ')
-    Xi.show('Xi:    ')
-    mu = Omega.inverse() * Xi
+    omega.show('omega: ')
+    xi.show('xi:    ')
+    mu = omega.inverse() * xi
     mu.show('Mu:    ')
 
     return mu
