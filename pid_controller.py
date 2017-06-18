@@ -85,29 +85,19 @@ class Robot(object):
         return '[x=%.5f y=%.5f orient=%.5f]' % (self.x, self.y, self.orientation)
 
 
-############## ADD / MODIFY CODE BELOW ####################
-# ------------------------------------------------------------------------
-#
-# run - does a single control run
+# # previous P controller
+# def run_p(robot, tau, n=100, speed=1.0):
+#     x_trajectory = []
+#     y_trajectory = []
+#     for i in range(n):
+#         cte = robot.y
+#         steer = -tau * cte
+#         robot.move(steer, speed)
+#         x_trajectory.append(robot.x)
+#         y_trajectory.append(robot.y)
+#     return x_trajectory, y_trajectory
 
-# previous P controller
-def run_p(robot, tau, n=100, speed=1.0):
-    x_trajectory = []
-    y_trajectory = []
-    for i in range(n):
-        cte = robot.y
-        steer = -tau * cte
-        robot.move(steer, speed)
-        x_trajectory.append(robot.x)
-        y_trajectory.append(robot.y)
-    return x_trajectory, y_trajectory
-
-
-robot = Robot()
-robot.set(0, 1, 0)
-
-
-# # new PD controller
+# #PD controller
 # def run(robot, tau_p, tau_d, n=100, speed=1.0):
 #     x_trajectory = []
 #     y_trajectory = []
@@ -130,29 +120,72 @@ robot.set(0, 1, 0)
 #     return x_trajectory, y_trajectory
 
 
-def run(robot, tau_p, tau_d, tau_i, n=100, speed=1.0):
+def make_robot():
+    """
+    Resets the robot back to the initial position and drift.
+    You'll want to call this after you call `run`.
+    """
+    robot = Robot()
+    robot.set(0, 1, 0)
+    robot.set_steering_drift(10 / 180 * np.pi)
+    return robot
+
+
+# PID controller
+def run(robot, params, n=100, speed=1.0):
     x_trajectory = []
     y_trajectory = []
+    err = 0
 
-    cte_old = 0
-    cte = robot.y
-    cte_sum = cte
-
-    for i in range(n):
-        steer = -tau_p * cte - tau_d * (cte - cte_old) - tau_i*cte_sum
+    prev_cte = robot.y
+    int_cte = 0
+    for i in range(2 * n):
+        cte = robot.y
+        diff_cte = (cte - prev_cte) / speed
+        int_cte += cte
+        prev_cte = cte
+        steer = -params[0] * cte - params[1] * diff_cte - params[2] * int_cte
         robot.move(steer, speed)
-
         x_trajectory.append(robot.x)
         y_trajectory.append(robot.y)
-
-        cte_old = cte
-        cte = robot.y
-        cte_sum += cte
-
-        print robot, steer
-
-    return x_trajectory, y_trajectory
+        if i >= n:
+            err += cte ** 2
+    return x_trajectory, y_trajectory, err / n
 
 
-x_trajectory, y_trajectory = run(robot, 0.2, 3.0, 0.004, 100, 1)
-n = len(x_trajectory)
+# Coordinates Ascent Method to find parameters for PID controller
+def twiddle(tol=.2):
+    p = [0, 0, 0]
+    dp = [1, 1, 1]
+    robot = make_robot()
+    x_trajectory, y_trajectory, best_err = run(robot, p)
+
+    it = 0
+    while float(sum(dp)) > tol:
+        print("Iteration {}, best error = {}".format(it, best_err))
+        for i in range(len(p)):
+            p[i] += dp[i]
+            robot = make_robot()
+            x_trajectory, y_trajectory, err = run(robot, p)
+
+            if err < best_err:
+                best_err = err
+                dp[i] *= 1.1
+            else:
+                p[i] -= 2 * dp[i]
+                robot = make_robot()
+                x_trajectory, y_trajectory, err = run(robot, p)
+
+                if err < best_err:
+                    best_err = err
+                    dp[i] *= 1.1
+                else:
+                    p[i] += dp[i]
+                    dp[i] *= 0.9
+        it += 1
+    return p
+
+
+params = twiddle()
+robot = make_robot()
+run(robot, params)
