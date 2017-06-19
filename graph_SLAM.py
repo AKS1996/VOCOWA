@@ -1,5 +1,4 @@
-# In this problem you will implement SLAM in a 2 dimensional
-# world. Please define a function, slam, which takes five
+# Function 'slam' takes five
 # parameters as input and returns the vector mu. This vector
 # should have x, y coordinates interlaced, so for example,
 # if there were 2 poses and 2 landmarks, mu would look like:
@@ -34,15 +33,9 @@ import random
 from numpy import add, subtract
 
 
-# SLAM in a rectilinear world (we avoid non-linearities)
+# SLAM in a rectilinear world
 
 class matrix:
-    # implements basic operations of a matrix class
-
-    # ------------
-    #
-    # initialization - can be called with an initial matrix
-    #
 
     def __init__(self, value=[[]]):
         self.value = value
@@ -299,7 +292,7 @@ class matrix:
 #
 # this is the robot class
 #
-# our robot lives in x-y space, and its motion is
+# the robot lives in x-y space, and its motion is
 # pointed in a random direction. It moves on a straight line
 # until is comes close to a wall at which point it turns
 # away from the wall and continues to move.
@@ -505,16 +498,6 @@ measurement_range = 50.0  # range at which we can sense landmarks
 motion_noise = 2.0  # noise in robot motion
 measurement_noise = 2.0  # noise in the measurements
 distance = 20.0  # distance by which robot (intends to) move each iteration
-
-# data = make_data(N, num_landmarks, world_size, measurement_range, motion_noise, measurement_noise, distance)
-# result = slam(data, N, num_landmarks, motion_noise, measurement_noise)
-# print_result(N, num_landmarks, result)
-
-# -------------
-# Testing
-#
-# Uncomment one of the test cases below to compare your results to
-# the results shown for Test Case 1 and Test Case 2.
 
 test_data1 = [[[[1, 19.457599255548065, 23.8387362100849], [2, -13.195807561967236, 11.708840328458608],
                 [3, -30.0954905279171, 15.387879242505843]], [-12.2607279422326, -15.801093326936487]],
