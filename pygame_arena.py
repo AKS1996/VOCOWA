@@ -19,6 +19,13 @@ size = [800, 600]
 
 
 def main():
+    """
+    Create Arena for SLAM_Lidar.py, SLAM_Lidar_BW.py
+    Drag to create obstacles
+    Exit the screen to save the image
+    Image saved as 'map.jpg' in the current directory
+
+    """
     pygame.init()
     screen = pygame.display.set_mode(size)
     clock = pygame.time.Clock()
@@ -46,7 +53,7 @@ def main():
 
         pygame.display.flip()  # to update screen. This must happen after all commands
 
-    pygame.draw.rect(screen, colors['BLACK'], [(size[0] - botX) / 2, (size[1] - botY) / 2, botX, botY])
+    pygame.draw.rect(screen, colors['WHITE'], [(size[0] - botX) / 2, (size[1] - botY) / 2, botX, botY])
     pygame.image.save(screen, 'map.jpg')
     im = Image.open('map.jpg')
     im = im.convert('L')
