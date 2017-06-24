@@ -67,7 +67,6 @@ def main():
     goal = [len(grid) - 1, len(grid[0]) - 1]
     cost = 1  # to move a step
 
-    # print search(grid, init, goal, cost, heuristic)
     for i in search(grid, init, goal, cost, heuristic):
         print i
 

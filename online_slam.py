@@ -23,25 +23,15 @@ world_size = 100.0  # size of world
 
 
 class matrix:
-    # implements basic operations of a matrix class
-
-    # ------------
-    #
-    # initialization - can be called with an initial matrix
-    #
-
     def __init__(self, value=[[]]):
+        """
+        :param value: Can be called with an initial matrix
+        """
         self.value = value
         self.dimx = len(value)
         self.dimy = len(value[0])
         if value == [[]]:
             self.dimx = 0
-
-    # -----------
-    #
-    # defines matrix equality - returns true if corresponding elements
-    #   in two matrices are within epsilon of each other.
-    #
 
     def __eq__(self, other):
         epsilon = 0.01
@@ -56,12 +46,13 @@ class matrix:
     def __ne__(self, other):
         return not (self == other)
 
-    # ------------
-    #
-    # makes matrix of a certain size and sets each element to zero
-    #
-
     def zero(self, dimx, dimy):
+        """
+        makes matrix of a certain size and sets each element to zero
+        :param dimx: Width
+        :param dimy: Height
+        :return: None
+        """
         if dimy == 0:
             dimy = dimx
         # check if valid dimensions
@@ -72,12 +63,13 @@ class matrix:
             self.dimy = dimy
             self.value = [[0.0 for row in range(dimy)] for col in range(dimx)]
 
-    # ------------
-    #
-    # makes matrix of a certain (square) size and turns matrix into identity matrix
-    #
-
     def identity(self, dim):
+        """
+        Makes matrix of a certain (square) size and turns matrix into identity matrix
+
+        :param dim: Index of I
+        :return: Nothing
+        """
         # check if valid dimension
         if dim < 1:
             raise ValueError, "Invalid size of matrix"
@@ -88,20 +80,10 @@ class matrix:
             for i in range(dim):
                 self.value[i][i] = 1.0
 
-    # ------------
-    #
-    # prints out values of matrix
-    #
-
     def show(self, txt=''):
         for i in range(len(self.value)):
             print txt + '[' + ', '.join('%.3f' % x for x in self.value[i]) + ']'
         print ' '
-
-    # ------------
-    #
-    # defines elmement-wise matrix addition. Both matrices must be of equal dimensions
-    #
 
     def __add__(self, other):
         # check if correct dimensions
@@ -265,17 +247,13 @@ class matrix:
                 res.value[i][j] = (self.value[i][j] - S) / res.value[i][i]
         return res
 
-        # ------------
-
-    #
-    # Computes inverse of matrix given its Cholesky upper Triangular
-    # decomposition of matrix.
-    # This code is based on http://adorio-research.org/wordpress/?p=4560
-
     def CholeskyInverse(self):
-        # Computes inverse of matrix given its Cholesky upper Triangular
-        # decomposition of matrix.
-        # This code is based on http://adorio-research.org/wordpress/?p=4560
+        """
+        Computes inverse of matrix given its Cholesky upper Triangular
+        decomposition of matrix.
+        This code is based on http://adorio-research.org/wordpress/?p=4560
+
+        """
 
         res = matrix()
         res.zero(self.dimx, self.dimx)
@@ -291,20 +269,10 @@ class matrix:
                           range(i + 1, self.dimx)]) / self.value[i][i]
         return res
 
-    # ------------
-    #
-    # comutes and returns the inverse of a square matrix
-    #
-
     def inverse(self):
         aux = self.Cholesky()
         res = aux.CholeskyInverse()
         return res
-
-    # ------------
-    #
-    # prints matrix (needs work!)
-    #
 
     def __repr__(self):
         return repr(self.value)
@@ -517,62 +485,84 @@ def slam(data, N, num_landmarks, motion_noise, measurement_noise):
     return mu
 
 
-# --------------------------------
-#
-# online_slam - retains all landmarks but only most recent robot pose
-#
-
 def online_slam(data, N, num_landmarks, motion_noise, measurement_noise):
-    omega = []
-    xi = []
-    omega2 = matrix.zero()
+    """
+    Retains all landmarks but only most recent robot pose
 
-    for i in range(N + num_landmarks):
-        omega.append([])
-        xi.append([0., 0.])
-        for j in range(N + num_landmarks):
-            omega[i].append(0)
+    :returns Mu: Robot's last position and all landmark coordinates
+    """
+    omega = matrix()
+    xi = matrix()
 
-    omega[0][0] += 1
-    xi[0] = [world_size / 2, world_size / 2]
+    omega.zero(1 + num_landmarks, 1 + num_landmarks)
+    xi.zero(1 + num_landmarks, 2)
+
+    omega.value[0][0] += 1
+    xi.value[0] = [world_size / 2, world_size / 2]
 
     for i in range(len(data)):
+        """
+        SENSE PART
+        That's a landmark reading, so no need to expand
 
+        """
         for measurement in data[i][0]:
-            # that's a landmark reading
-            # SENSE PART
+            omega.value[i][i] += 1 / measurement_noise
+            omega.value[measurement[0] + 1][measurement[0] + 1] += 1 / measurement_noise
+            omega.value[measurement[0] + 1][i] -= 1 / measurement_noise
+            omega.value[i][measurement[0] + 1] -= 1 / measurement_noise
 
-            omega[i][i] += 1 / measurement_noise
-            omega[measurement[0] + N][measurement[0] + N] += 1 / measurement_noise
-            omega[measurement[0] + N][i] -= 1 / measurement_noise
-            omega[i][measurement[0] + N] -= 1 / measurement_noise
+            xi.value[i] = subtract(xi.value[i],
+                                   [measurement[1] / measurement_noise, measurement[2] / measurement_noise])
 
-            xi[i] = subtract(xi[i], [measurement[1] / measurement_noise, measurement[2] / measurement_noise])
+            xi.value[measurement[0] + 1] = add(xi.value[measurement[0] + 1],
+                                               [measurement[1] / measurement_noise, measurement[2] / measurement_noise])
 
-            xi[measurement[0] + N] = add(xi[measurement[0] + N],
-                                         [measurement[1] / measurement_noise, measurement[2] / measurement_noise])
+        """
+        MOVE Part
+        
+        X(t) -> X(t+1)
+        First Expand to add X(t+1)
+        """
 
-        # MOVE Part
+        indices = [0] + range(2, 2 + num_landmarks)
+        omega = omega.expand(2 + num_landmarks, 2 + num_landmarks, indices, indices)
+        xi = xi.expand(2 + num_landmarks, 2, indices, [0, 1])
+
+        """
+        Update values
+        """
         motion = data[i][1]
 
-        omega[i][i] += 1 / motion_noise
-        omega[i + 1][i + 1] += 1 / motion_noise
-        omega[i][i + 1] -= 1 / motion_noise
-        omega[i + 1][i] -= 1 / motion_noise
+        omega.value[i][i] += 1 / motion_noise
+        omega.value[i + 1][i + 1] += 1 / motion_noise
+        omega.value[i][i + 1] -= 1 / motion_noise
+        omega.value[i + 1][i] -= 1 / motion_noise
 
-        xi[i] = subtract(xi[i], [motion[0] / motion_noise, motion[1] / motion_noise])
-        xi[i + 1] = add(xi[i + 1], [motion[0] / motion_noise, motion[1] / motion_noise])
+        xi.value[i] = subtract(xi.value[i], [motion[0] / motion_noise, motion[1] / motion_noise])
+        xi.value[i + 1] = add(xi.value[i + 1], [motion[0] / motion_noise, motion[1] / motion_noise])
 
-        # Both SENSE And MOVE done. Now breaking matrix omega
+        """
+        Now Remove X(t)
+        """
+        indices = range(1, 2 + num_landmarks)
+        A = omega.take([0], indices)
+        B = omega.take([0])
+        C = xi.take([0], [0, 1])
+        _omega = omega.take(indices, indices)
+        _xi = xi.take(indices, [0, 1])
 
-    # Ended creating omega and xi
-    omega = matrix(omega)
-    xi = matrix(xi)
+        omega = _omega - A.transpose() * B.inverse() * A
+        xi = _xi - A.transpose() * B.inverse() * C
 
+    """
+    Ended creating omega and xi
+    Now find mu. Interlace it
+    """
     M = omega.inverse() * xi
 
     mu = []
-    for i in range(N + num_landmarks):
+    for i in range(1 + num_landmarks):
         mu.append([M.value[i][0]])
         mu.append([M.value[i][1]])
 
@@ -677,7 +667,6 @@ answer_omega1 = matrix(
 
 result = online_slam(testdata1, 5, 3, 2.0, 2.0)
 solution_check(result, answer_mu1, answer_omega1)
-
 
 # -----------
 # Test Case 2

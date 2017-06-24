@@ -16,9 +16,6 @@ delta_name = ['^', '<', 'v', '>']
 
 
 def search(grid, init, goal, cost):
-    # ----------------------------------------
-    # modify code below
-    # ----------------------------------------
     closed = [[0 for row in range(len(grid[0]))] for col in range(len(grid))]
     expand = [[1000 for row in range(len(grid[0]))] for col in range(len(grid))]
     result = [[' ' for row in range(len(grid[0]))] for col in range(len(grid))]
@@ -57,8 +54,9 @@ def search(grid, init, goal, cost):
                             open.append([g2, x2, y2])
                             closed[x2][y2] = 1
 
-    del closed, col, count, found, g, grid, cost, g2, next, resign, open, row, x2, y2
-    # finding smallest using DP
+    """
+        Now the DP part to find path
+    """
     current = goal
     result[current[0]][current[1]] = '*'
     min_score = expand[current[0]][current[1]]
@@ -81,8 +79,6 @@ def search(grid, init, goal, cost):
             break
 
     return result
-    # return expand
 
-# print search(grid, init, goal, cost)
 for i in search(grid, init, goal, cost):
     print i

@@ -450,7 +450,6 @@ def slam(data, N, num_landmarks, motion_noise, measurement_noise):
     xi[0] = [world_size / 2, world_size / 2]
 
     for i in range(len(data)):
-
         for measurement in data[i][0]:
             # that's a landmark reading
             # SENSE PART
