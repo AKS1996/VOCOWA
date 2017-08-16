@@ -1,13 +1,35 @@
 <component name="ProjectDictionaryState">
   <dictionary name="Akshay">
     <words>
+      <w>conv</w>
       <w>crosstrack</w>
       <w>dropzone</w>
+      <w>foundlandmarks</w>
+      <w>laserdata</w>
+      <w>lastlastreading</w>
+      <w>lastreading</w>
+      <w>leastdistance</w>
+      <w>linelandmarks</w>
+      <w>maxerror</w>
+      <w>maxrange</w>
+      <w>maxsample</w>
+      <w>maxtrials</w>
+      <w>minlinepos</w>
+      <w>minobservations</w>
       <w>newpath</w>
+      <w>pntx</w>
+      <w>pnty</w>
       <w>pwsb</w>
+      <w>ransac</w>
       <w>resampled</w>
       <w>resampling</w>
+      <w>spikelandmarks</w>
       <w>tpath</w>
+      <w>uniquelandmarks</w>
+      <w>uniquelmrks</w>
+      <w>xbounds</w>
+      <w>xlandmarks</w>
+      <w>ybounds</w>
     </words>
   </dictionary>
 </component>

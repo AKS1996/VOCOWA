@@ -18,9 +18,9 @@ grid = [[1, 1, 1, 0, 0, 0],
         [0, 0, 0, 0, 0, 0],
         [1, 1, 1, 0, 1, 1],
         [1, 1, 1, 0, 1, 1]]
-goal = [2, 0]  # final position
+goal = [0, 5]  # final position
 init = [4, 3, 0]  # first 2 elements are coordinates, third is direction
-cost = [2, 1, 20]  # the cost field has 3 values: right turn, no turn, left turn
+cost = [20, 1, -10]  # the cost field has 3 values: right turn, no turn, left turn
 
 # EXAMPLE OUTPUT:
 # calling optimum_policy2D() should return the array

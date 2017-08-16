@@ -50,13 +50,6 @@ class Robot(object):
         if distance < 0.0:
             distance = 0.0
 
-        # make a new copy
-        # res = Robot()
-        # res.length = self.length
-        # res.steering_noise = self.steering_noise
-        # res.distance_noise = self.distance_noise
-        # res.steering_drift = self.steering_drift
-
         # apply noise
         steering2 = random.gauss(steering, self.steering_noise)
         distance2 = random.gauss(distance, self.distance_noise)
