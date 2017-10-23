@@ -1,7 +1,7 @@
 # VOCOWA
 
-This is basic static trial using LIDAR
-The program was compiled on python 2.7.13
+VOCOWA(Voice Controlled Wheelchair Autonomous) is a SLAM project. It uses LIDAR for object detection
+Given code was compiled on python 2.7.13
 Make sure u have following python modules installed : pygame, numpy, PIL
 
 # Procedure
@@ -11,7 +11,7 @@ Make sure u have following python modules installed : pygame, numpy, PIL
 4. Now execute latter file. When it prompts for continue, enter 'n'
 5. This will result in 'result.jpg' file
 
-Sample files are being provided for refernce
+Sample files are being provided for reference
 # Limitations
 1. Static environment
 2. Bot's currently not moving
