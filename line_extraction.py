@@ -634,7 +634,7 @@ def main():
     robot = (0, 0, 0)  # X,Y, theta
     ls = landmarks(1)
     nls = ls.ExtractLinelandmarks(data, robot)
-    print nls
+    print(nls)
 
 
 if __name__ == '__main__':
